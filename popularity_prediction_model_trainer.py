@@ -10,7 +10,6 @@ import sys
 import traceback as tb
 from datetime import datetime as dt
 import joblib
-from xgboost import XGBRegressor
 
 # Set up the database password from environment variables
 SPOTIFY_DB = os.getenv("SPOTIFY_DB_PASS")
