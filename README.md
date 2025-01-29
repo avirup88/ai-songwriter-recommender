@@ -31,11 +31,6 @@ This project is an AI-powered music assistant that provides song recommendations
 ├── README.md                         # Project documentation
 ├── requirements.txt                   # Required dependencies
 ```
-### Setup the MySQl Database
-  1. Install MySQL in your local machine
-  2. Create a user ironhack
-  3. Create a database spotify_lyrics_db
-  4. Create the tables given in the Table DDL script  
 
 ## Installation
 ### 1️⃣ Clone the Repository
@@ -64,8 +59,17 @@ SPOTIFY_CLIENT_ID=your_spotify_client_id
 SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
 SPOTIFY_DB_PASS=your_mysql_password
 ```
+### Setup the MySQl Database
+  1. Install MySQL on your local machine
+  2. Run all the scripts given in the database folder
 
-### 5️⃣ Run the Application
+### Setup Scripts execution order
+  1. SQL Scripts
+  2. lyrics_dataset_generator_main.py (for new data generation)
+  3. popularity_prediction_model_trainer.py (for training the model and saving the files)
+
+
+### 5️⃣ Run the Application - After the setup is done successfully
 ```bash
 streamlit run ai_sw_recommender_main.py
 ```
@@ -84,9 +88,4 @@ streamlit run ai_sw_recommender_main.py
 5. View the predicted popularity score.
 6. Download your generated song.
 
-## Model Training
-To train the popularity prediction model:
-```bash
-python popularity_prediction_model_trainer.py
-```
 
