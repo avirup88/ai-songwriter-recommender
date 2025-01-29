@@ -12,7 +12,7 @@ This project is an AI-powered music assistant that provides song recommendations
 ## Technologies Used
 - **Python**: Core programming language
 - **Streamlit**: Web UI for the interactive application
-- **Scikit-learn & XGBoost**: Machine learning for popularity prediction
+- **Scikit-learn**: Machine learning for popularity prediction
 - **Gensim (FastText)**: Word embeddings for text processing
 - **OpenAI API**: AI-powered lyric generation
 - **Hugging Face Transformers**: Mood detection from lyrics
