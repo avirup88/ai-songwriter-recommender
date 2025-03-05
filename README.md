@@ -8,6 +8,7 @@ This project is an AI-powered music assistant that provides song recommendations
 - 📝 **AI-Powered Songwriting**: Generates lyrics inspired by user input.
 - 📊 **Popularity Prediction**: Predicts the popularity of generated lyrics.
 - 🎼 **Lyrics Dataset Generator**: Extracts and processes song lyrics from Spotify.
+- 🤖 **Retrieval-Augmented Generation (RAG) Songwriting**: Uses AI to enhance songwriting with similar lyrics retrieval.
 
 ## Technologies Used
 - **Python**: Core programming language
@@ -18,10 +19,13 @@ This project is an AI-powered music assistant that provides song recommendations
 - **Hugging Face Transformers**: Mood detection from lyrics
 - **MySQL & SQLAlchemy**: Database management for song datasets
 - **Spotipy**: Spotify API integration for song metadata retrieval
+- **ChromaDB**: Vector database for song lyric retrieval
+- **Sentence Transformers**: Embeddings for similarity search
 
 ## Project Structure
 ```
 ├── ai_sw_recommender_main.py         # Streamlit app for song recommendation and lyric generation
+├── ai_songwriter_rag.py              # AI Songwriter with RAG for enhanced lyric generation
 ├── popularity_prediction_model_trainer.py  # Model training for song popularity prediction
 ├── lyrics_dataset_generator_main.py  # Fetches & processes song lyrics dataset
 ├── model_files/                      # Stored ML models (FastText & RandomForest)
@@ -59,15 +63,14 @@ SPOTIFY_CLIENT_ID=your_spotify_client_id
 SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
 SPOTIFY_DB_PASS=your_mysql_password
 ```
-### Setup the MySQl Database
+### Setup the MySQL Database
   1. Install MySQL on your local machine
   2. Run all the scripts given in the database folder
 
-### Setup Scripts execution order
+### Setup Scripts Execution Order
   1. SQL Scripts
   2. lyrics_dataset_generator_main.py (for new data generation)
   3. popularity_prediction_model_trainer.py (for training the model and saving the files)
-
 
 ### 5️⃣ Run the Application - After the setup is done successfully
 ```bash
@@ -88,4 +91,9 @@ streamlit run ai_sw_recommender_main.py
 5. View the predicted popularity score.
 6. Download your generated song.
 
-
+### 🎼 AI Songwriter with RAG
+1. Open `ai_songwriter_rag.py` in Streamlit.
+2. Enter a theme or lyrics snippet for inspiration.
+3. Select a song & artist for lyrical inspiration.
+4. The AI retrieves similar lyrics and generates a song based on your input.
+5. View the generated lyrics and download them.
