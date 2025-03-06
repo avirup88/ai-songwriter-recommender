@@ -3,12 +3,49 @@
 ## Overview
 This project is an AI-driven system that integrates **machine learning, natural language processing, and recommendation algorithms** to analyze song lyrics, predict popularity, and generate personalized song recommendations based on moods. It consists of multiple components that enable data collection, processing, model training, and a user-friendly interface for interacting with the system.
 
+## Use Case - Iron Hack Final Project
+This project was developed as part of the **Iron Hack Final Project**, focusing on bridging **data science and music analytics**. The goal was to create an AI-powered tool that:
+- Helps **music enthusiasts and artists** analyze song lyrics and understand their potential popularity.
+- Assists **content creators and music producers** in **generating mood-based playlists** and AI-generated lyrics.
+- Provides **insights for music streaming platforms** to improve user engagement by recommending songs based on emotions.
+- Showcases the **power of NLP, machine learning, and AI-generated content** in the evolving music industry.
+
+By leveraging **AI-driven insights**, this project demonstrates how technology can enhance creativity and decision-making in the music domain, making it a valuable asset for the industry.
+
 ## Features
 - **Lyrics Dataset Generation:** Fetches song lyrics and metadata from **Spotify** and other sources, processes text, and stores structured data in a database.
 - **Mood-Based Song Recommendation:** Suggests songs based on user-selected moods using sentiment analysis and similarity-based filtering.
 - **AI Songwriting Assistant:** Generates AI-assisted song lyrics based on user prompts and inspirations.
 - **Popularity Prediction Model:** Uses **FastText embeddings** and **Random Forest Regression** to predict a song's popularity based on its lyrics.
 - **Retrieval-Augmented Generation (RAG):** Enhances AI-generated lyrics with similar song references to improve creativity and coherence.
+
+---
+
+## Project Architecture
+The project follows a **modular architecture** that integrates multiple AI and data processing components:
+
+1. **Data Ingestion & Storage:**
+   - Uses **Spotify API** and **Lyrics.ovh API** to fetch song metadata and lyrics.
+   - Stores the data in a **MySQL database** for efficient querying and processing.
+
+2. **Data Processing & Feature Engineering:**
+   - Cleans and preprocesses lyrics using **NLTK** and **custom text-processing pipelines**.
+   - Extracts **FastText embeddings** for numerical representation of lyrics.
+   - Uses **Hugging Face sentiment analysis models** to classify mood/emotion.
+
+3. **Machine Learning Models:**
+   - **RandomForestRegressor** predicts the popularity of a song based on processed lyrics.
+   - **Retrieval-Augmented Generation (RAG)** improves AI songwriting by retrieving similar lyrics.
+
+4. **Recommendation & AI Songwriting:**
+   - Suggests songs based on mood analysis using a **mood-based filtering system**.
+   - Generates lyrics using **OpenAI GPT-4**, leveraging RAG for coherence.
+
+5. **User Interface (Streamlit Web App):**
+   - Provides an interactive platform for users to:
+     - Get **mood-based song recommendations**.
+     - **Generate AI-powered song lyrics** with user-defined inspiration.
+     - View **predicted popularity scores** for generated lyrics.
 
 ---
 
@@ -108,6 +145,5 @@ streamlit run ai_sw_recommender_main.py
 
 ## Contributors
 - **Avirup Chakraborty** - Developer & Data Engineer
-- **LinkedIn** - https://www.linkedin.com/in/avirup-chakraborty/
-If you have any questions or suggestions, feel free to reach out!
 
+If you have any questions or suggestions, feel free to reach out!
