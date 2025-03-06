@@ -1,4 +1,4 @@
-# Lyrics Mood based Song Recommender & AI Songwriter (RAG Eanbled)
+# Lyrics Mood based Song Recommender & AI Songwriter
 
 ## Overview
 This project is an AI-driven system that integrates **machine learning, natural language processing, and recommendation algorithms** to analyze song lyrics, predict popularity, and generate personalized song recommendations based on moods. It consists of multiple components that enable data collection, processing, model training, and a user-friendly interface for interacting with the system.
