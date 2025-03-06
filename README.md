@@ -1,99 +1,113 @@
-# 🎵 AI Songwriter & Recommender
+# AI-Powered Song Popularity Prediction & Recommendation System
 
 ## Overview
-This project is an AI-powered music assistant that provides song recommendations based on mood and generates song lyrics inspired by user input. The system leverages machine learning models, natural language processing, and the Spotify API to analyze lyrics, detect moods, and predict song popularity.
+This project is an AI-driven system that integrates **machine learning, natural language processing, and recommendation algorithms** to analyze song lyrics, predict popularity, and generate personalized song recommendations based on moods. It consists of multiple components that enable data collection, processing, model training, and a user-friendly interface for interacting with the system.
 
 ## Features
-- 🎶 **Mood-Based Playlist Generator**: Recommends songs based on mood.
-- 📝 **AI-Powered Songwriting**: Generates lyrics inspired by user input.
-- 📊 **Popularity Prediction**: Predicts the popularity of generated lyrics.
-- 🎼 **Lyrics Dataset Generator**: Extracts and processes song lyrics from Spotify.
-- 🤖 **Retrieval-Augmented Generation (RAG) Songwriting**: Uses AI to enhance songwriting with similar lyrics retrieval.
+- **Lyrics Dataset Generation:** Fetches song lyrics and metadata from **Spotify** and other sources, processes text, and stores structured data in a database.
+- **Mood-Based Song Recommendation:** Suggests songs based on user-selected moods using sentiment analysis and similarity-based filtering.
+- **AI Songwriting Assistant:** Generates AI-assisted song lyrics based on user prompts and inspirations.
+- **Popularity Prediction Model:** Uses **FastText embeddings** and **Random Forest Regression** to predict a song's popularity based on its lyrics.
+- **Retrieval-Augmented Generation (RAG):** Enhances AI-generated lyrics with similar song references to improve creativity and coherence.
 
-## Technologies Used
-- **Python**: Core programming language
-- **Streamlit**: Web UI for the interactive application
-- **Scikit-learn**: Machine learning for popularity prediction
-- **Gensim (FastText)**: Word embeddings for text processing
-- **OpenAI API**: AI-powered lyric generation
-- **Hugging Face Transformers**: Mood detection from lyrics
-- **MySQL & SQLAlchemy**: Database management for song datasets
-- **Spotipy**: Spotify API integration for song metadata retrieval
-- **ChromaDB**: Vector database for song lyric retrieval
-- **Sentence Transformers**: Embeddings for similarity search
+---
 
 ## Project Structure
 ```
-├── ai_sw_recommender_main.py         # Streamlit app for song recommendation and lyric generation
-├── ai_songwriter_rag.py              # AI Songwriter with RAG for enhanced lyric generation
-├── popularity_prediction_model_trainer.py  # Model training for song popularity prediction
-├── lyrics_dataset_generator_main.py  # Fetches & processes song lyrics dataset
-├── model_files/                      # Stored ML models (FastText & RandomForest)
-├── modules/                          # Stored functions which are called from the apps
-  ├── spotify_lyrics_dataset_generator_helper.py # Spotify API helper functions
-  ├── ai_songwriter_song_recommender.py # Song recommendation logic & OpenAI API integration
-├── README.md                         # Project documentation
-├── requirements.txt                   # Required dependencies
+├── ai_sw_recommender_main.py             # Streamlit-based web application for song recommendation & lyric generation
+├── ai_songwriter_song_recommender.py     # Core functions for AI-powered song recommendations and lyric generation
+├── lyrics_dataset_generator_main.py      # Script to generate and preprocess the lyrics dataset
+├── popularity_prediction_model_trainer.py# ML pipeline for training a song popularity prediction model
+├── spotify_lyrics_dataset_generator_helper.py # Helper functions for data collection, text processing, and emotion analysis
+├── model_files                           # Folder to store trained ML models (RandomForest & FastText)
+└── requirements.txt                      # List of dependencies required to run the project
 ```
 
-## Installation
-### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/your-username/ai-songwriter-recommender.git
-cd ai-songwriter-recommender
-```
+---
 
-### 2️⃣ Set Up a Virtual Environment
-```bash
-python -m venv venv
-source venv/bin/activate   # On macOS/Linux
-venv\Scripts\activate      # On Windows
-```
-
-### 3️⃣ Install Dependencies
-```bash
+## Setup & Installation
+### Prerequisites
+Ensure you have Python 3.8+ installed. Install required dependencies using:
+```sh
 pip install -r requirements.txt
 ```
 
-### 4️⃣ Set Up Environment Variables
-Create a `.env` file and add your API keys:
+### Environment Variables
+Create a `.env` file with the following credentials:
+```env
+SPOTIFY_CLIENT_ID=<your_spotify_client_id>
+SPOTIFY_CLIENT_SECRET=<your_spotify_client_secret>
+SPOTIFY_DB_PASS=<your_database_password>
+OPENAI_API_KEY=<your_openai_api_key>
 ```
-OPENAI_API_KEY=your_openai_api_key
-SPOTIFY_CLIENT_ID=your_spotify_client_id
-SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-SPOTIFY_DB_PASS=your_mysql_password
+
+### Database Setup
+The project relies on **MySQL** to store lyrics and song metadata. Set up your database and configure the connection string:
+```sh
+mysql+mysqlconnector://ironhack:{SPOTIFY_DB_PASS}@127.0.0.1/spotify_lyrics_db
 ```
-### Setup the MySQL Database
-  1. Install MySQL on your local machine
-  2. Run all the scripts given in the database folder
+Ensure your database schema has a table named `dim_tracks_details` for storing processed song lyrics and metadata.
 
-### Setup Scripts Execution Order
-  1. SQL Scripts
-  2. lyrics_dataset_generator_main.py (for new data generation)
-  3. popularity_prediction_model_trainer.py (for training the model and saving the files)
+---
 
-### 5️⃣ Run the Application - After the setup is done successfully
-```bash
+## Running the Project
+### 1. Generate Lyrics Dataset
+Run the following command to fetch lyrics and preprocess them for mood analysis:
+```sh
+python lyrics_dataset_generator_main.py
+```
+
+### 2. Train Popularity Prediction Model
+```sh
+python popularity_prediction_model_trainer.py
+```
+This script trains **FastText** and **RandomForestRegressor**, evaluates the model, and saves the trained models in `model_files/`.
+
+### 3. Start the Web Application
+Run the Streamlit-based web app for song recommendations and AI songwriting:
+```sh
 streamlit run ai_sw_recommender_main.py
 ```
 
-## Usage
-### 🎵 Mood-Based Playlist
-1. Select the **Mood-Based Playlist** option.
-2. Choose a mood from the dropdown.
-3. Generate a playlist based on the selected mood.
+---
 
-### 📝 AI-Powered Songwriting
-1. Select the **Song Writer** option.
-2. Enter a prompt describing your inspiration.
-3. Select a song & artist for lyrical inspiration.
-4. Generate song lyrics with AI.
-5. View the predicted popularity score.
-6. Download your generated song.
+## How It Works
+### **1. Lyrics Dataset Generator**
+- Extracts song lyrics from **Spotify** and external APIs.
+- Cleans and processes lyrics by removing noise and detecting moods.
+- Stores data in a MySQL database.
 
-### 🎼 AI Songwriter with RAG
-1. Open `ai_songwriter_rag.py` in Streamlit.
-2. Enter a theme or lyrics snippet for inspiration.
-3. Select a song & artist for lyrical inspiration.
-4. The AI retrieves similar lyrics and generates a song based on your input.
-5. View the generated lyrics and download them.
+### **2. Popularity Prediction Model**
+- Uses **FastText** embeddings to convert lyrics into numerical vectors.
+- Trains a **RandomForestRegressor** to predict a song's popularity based on lyrics.
+- Evaluates model performance using MAE, RMSE, and MSE.
+
+### **3. AI-Powered Song Recommendation & Writing**
+- **Mood-Based Playlist Generator**: Users select a mood, and the system recommends songs.
+- **AI Songwriter with RAG**: Generates song lyrics inspired by user prompts and existing song structures. The **Retrieval-Augmented Generation (RAG)** method enhances lyric generation by incorporating similar lyrics from a curated dataset, improving coherence and relevance.
+- **Popularity Prediction**: Predicts the potential popularity of AI-generated lyrics.
+
+---
+
+## Technologies Used
+- **Machine Learning:** FastText, RandomForestRegressor
+- **NLP & Text Processing:** Hugging Face, NLTK, OpenAI GPT-4
+- **Database:** MySQL, SQLAlchemy
+- **Web Framework:** Streamlit
+- **Data Collection:** Spotipy (Spotify API), Lyrics.ovh API
+
+---
+
+## Future Improvements
+- Improve popularity prediction with deep learning models like **LSTMs** or **Transformer-based models**.
+- Expand dataset to include additional song features like genre, tempo, and user engagement metrics.
+- Enhance AI-generated lyrics using **fine-tuned LLMs**.
+- Implement a **user feedback loop** to refine recommendations over time.
+
+---
+
+## Contributors
+- **Avirup Chakraborty** - Developer & Data Engineer
+- **LinkedIn** - https://www.linkedin.com/in/avirup-chakraborty/
+If you have any questions or suggestions, feel free to reach out!
+
