@@ -10,6 +10,8 @@ import traceback as tb
 import random
 from modules import spotify_lyrics_dataset_generator_helper as sld
 import joblib
+from sentence_transformers import SentenceTransformer
+import chromadb
 
 # Load environment variables
 load_dotenv()
@@ -32,10 +34,8 @@ def load_model_and_embeddings():
 
 rf_model, ft_model = load_model_and_embeddings()
 
+# Compute sentence vector for lyrics
 def compute_sentence_vector(lyrics, model):
-    """
-    Compute the sentence vector by averaging word vectors.
-    """
     words = lyrics.split()
     word_vectors = [model.wv[word] for word in words if word in model.wv]
 
@@ -44,18 +44,23 @@ def compute_sentence_vector(lyrics, model):
     else:
         return [0] * model.vector_size
 
+
+# Load embedding model for RAG
+@st.cache_resource
+def load_embedding_model():
+    return SentenceTransformer("all-MiniLM-L6-v2")
+
+embedding_model = load_embedding_model()
+
 @st.cache_data
-def load_sample_dataframe():
-    """
-    Load a sample DataFrame with song data, including title, artist, lyrics, and mood.
-    """
+def load_lyrics_dataframe():
     connection_string = "mysql+mysqlconnector://ironhack:{}@127.0.0.1/spotify_lyrics_db".format(SPOTIFY_DB)
     engine = create_engine(connection_string)
-
-    query = "SELECT song_name, artist, spotify_link, mood, lyrics, mood_strength, popularity FROM dim_tracks_details;"
+    query = "SELECT song_name, artist, lyrics, mood, mood_strength, popularity, spotify_link FROM dim_tracks_details;"
     df = pd.read_sql(query, con=engine)
-
     return df
+
+lyrics_df = load_lyrics_dataframe()
 
 def recommend_songs_by_mood(selected_mood, df, num_songs):
     """
@@ -69,9 +74,29 @@ def recommend_songs_by_mood(selected_mood, df, num_songs):
         return recommendations
 
     except Exception as e:
-        error = f"❌ Error occurred: {e}\nTraceback: {tb.format_exc()}"
-        st.error(error)
+        st.error(f"❌ Error occurred while recommending songs: {e}")
         return pd.DataFrame()
+
+# Initialize ChromaDB client
+@st.cache_resource
+def init_chroma():
+    client = chromadb.PersistentClient(path="./chroma_db")
+    collection = client.get_or_create_collection(name="lyrics_embeddings")
+    return collection
+
+chroma_collection = init_chroma()
+
+@st.cache_data
+def get_retrieved_lyrics(user_input, top_k=5):
+    """Retrieve similar lyrics using ChromaDB."""
+    try:
+        user_embedding = embedding_model.encode([user_input]).tolist()
+        results = chroma_collection.query(query_embeddings=user_embedding, n_results=top_k)
+        retrieved_lyrics = [res["lyrics"] for res in results["metadatas"][0]]
+        return retrieved_lyrics
+    except Exception as e:
+        st.error(f"Error retrieving lyrics: {e}")
+        return []
 
 def map_prompt_to_mood(prompt):
     """
@@ -124,38 +149,38 @@ def map_prompt_to_mood(prompt):
 
     return "Neutral"
 
-def generate_song_lyrics(selected_artist, selected_song, selected_lyrics, prompt, mood):
+def generate_song_lyrics(selected_artist, selected_song, selected_lyrics, prompt, mood, use_rag=True):
     """
-    Generate song lyrics based on the user-selected artist, song, mood, and custom prompt.
+    Generate song lyrics with or without retrieval-augmented generation (RAG).
     """
     try:
+        
+        retrieved_lyrics_text = get_retrieved_lyrics(prompt) if use_rag else []
+        
         system_prompt = f"""
-        You are a creative AI assistant skilled at writing song lyrics. 
-        Based on the user's input and the selected inspiration, generate a new song. 
-        Ensure the song aligns with the following details:
-        - Mood: {mood}
-        - Inspiration artist: {selected_artist}
-        - Inspiration song: {selected_song}
-        - Inspiration lyrics: "{selected_lyrics}"
-        - Prompt: "{prompt}"
-        The song should include a song name, verses, a chorus, and, optionally, a bridge.
-        Write the similarity score of how much you were inspired from the original "{selected_song}" and mention the song name and the artist of inspiration.
-        Strictly Maintain the following format for the response, No need to mention the details of similarity:
-        Song Name
-        Lyrics
-        Inspiration
-        Similarity Score
-        """
+                You are a creative AI assistant skilled at writing song lyrics. 
+                Based on the user's input {"and retrieved similar lyrics" if use_rag else ""}, generate a new song.
+                Ensure the song aligns with:
+                - Mood: {mood}
+                - Inspiration artist: {selected_artist}
+                - Inspiration song: {selected_song}
+                - User input: "{prompt}"
+                {retrieved_lyrics_text}
+                The song should include a title, verses, a chorus, and optionally a bridge.
+                Strictly Maintain the following format:
+                Song Name
+                Lyrics
+                Inspiration
+                """
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Write a song inspired by {selected_song} by {selected_artist} with the mood '{mood}' and the following lyrics:\n\n{selected_lyrics}"}
+            {"role": "user", "content": f"Write a song inspired by {selected_song} by {selected_artist} with the mood '{mood}' and the following lyrics:\n\n {retrieved_lyrics_text.append(selected_lyrics) if use_rag else selected_lyrics}"}
         ]
-
+        
         completion = openai.OpenAI().chat.completions.create(messages=messages, model='gpt-4', temperature=0.7, max_tokens=2000)
 
-        lyrics = completion.choices[0].message.content
-        return lyrics
+        return completion.choices[0].message.content
 
     except Exception as e:
         error = f"❌ Error occurred: {e}\nTraceback: {tb.format_exc()}"
@@ -167,14 +192,9 @@ def predict_song_popularity(lyrics):
     Predict the popularity of a song based on its lyrics using the random forest model and FastText embeddings.
     """
     try:
-        # Compute the sentence vector for the lyrics
         lyrics_embedding = compute_sentence_vector(lyrics, ft_model)
-
-        # Make prediction using the random forest model
         popularity_score = rf_model.predict([lyrics_embedding])[0]
-
         return popularity_score
-
     except Exception as e:
         error = f"❌ Error occurred: {e}\nTraceback: {tb.format_exc()}"
         st.error(error)

@@ -1,13 +1,12 @@
+import streamlit as st
 from modules import spotify_lyrics_dataset_generator_helper as sld
 from modules import ai_songwriter_song_recommender as ais
-import streamlit as st
-
 
 # Streamlit Application
 st.title("🎵 A.I. Creative Assistant")
 st.write("Explore songs by mood or generate your own song lyrics based on a mood and inspiration.")
 
-df = ais.load_sample_dataframe()
+df = ais.load_lyrics_dataframe()
 
 # Sidebar
 st.sidebar.title("Navigation")
@@ -15,13 +14,11 @@ st.sidebar.title("Navigation")
 app_mode = st.sidebar.radio("Choose a feature:", ["Mood-Based Playlist", "Song Writer"])
 
 if app_mode == "Mood-Based Playlist":
-
     st.header("🎶 Mood-Based Playlist Generator")
     unique_moods = df['mood'].str.capitalize().unique()
     selected_mood = st.selectbox("Select a mood:", unique_moods)
-
     num_songs = st.slider("Number of songs to recommend:", min_value=1, max_value=10, value=5)
-
+    
     col1, col2 = st.columns([5, 1])
 
     with col1:
@@ -50,27 +47,27 @@ if app_mode == "Mood-Based Playlist":
             st.rerun()
 
 elif app_mode == "Song Writer":
-
     st.header("📝 AI-Powered Song Writer")
     user_prompt = st.text_area("Describe your inspiration for the song:")
     detected_mood = ais.map_prompt_to_mood(user_prompt) if user_prompt else "Neutral"
     st.write(f"Detected Mood: {detected_mood.capitalize()}")
 
     selected_mood = st.selectbox("Select a mood:", options=[detected_mood.capitalize()] + list(df['mood'].str.capitalize().unique()))
-
     selected_song = st.selectbox("Select a song for inspiration:", df['song_name'].unique())
     selected_artist = df.loc[df['song_name'] == selected_song, 'artist'].values[0]
     selected_lyrics = df.loc[df['song_name'] == selected_song, 'lyrics'].values[0]
-
+    
     st.write(f"**Selected Song:** {selected_song} by {selected_artist}")
     st.text_area("Inspiration Lyrics:", value=selected_lyrics, height=150)
-
+    
+    use_rag = st.checkbox("Use Retrieval-Augmented Generation (RAG) for lyrics inspiration")
+    
     col1, col2 = st.columns([5, 1])
 
     with col1:
         if st.button("Generate Song"):
             with st.spinner("⏳ Writing your song..."):
-                song_lyrics = ais.generate_song_lyrics(selected_artist, selected_song, selected_lyrics, user_prompt, selected_mood)
+                song_lyrics = ais.generate_song_lyrics(selected_artist, selected_song, selected_lyrics, user_prompt, selected_mood, use_rag=use_rag)
                 st.success("✅ Your song has been created!")
                 st.markdown(f"""
                 <div style="border: 2px dashed #ccc; border-radius: 10px; padding: 20px; background-color: #f7fcff;">
